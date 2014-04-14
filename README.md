@@ -1,15 +1,15 @@
 # Cloud Storage Uploader
 
-Uploads a (larger) file in a minimum of time by streaming.
+Uploads a large file directly to Google Drive. Files should be piped directly to `csup` so that now temporarily files must be created (see examples below).
 
-Very basic. It's only working with Google Drive for now.
+Very basic. It's only working with Google Drive.
 
 ## Install
 
 ```sh
   $ git clone git@github.com:pstaender/csup.git csup
   $ cd csup && npm install .
-  # if you want to use it from commandline everywhere (recommend)
+  # if you want to use it everywhere from commandline (recommend)
   $ chmod +x lib/csup
   $ (sudo) ln -s $(pwd)/lib/csup /usr/local/bin/csup
 ```
@@ -19,7 +19,7 @@ Very basic. It's only working with Google Drive for now.
 Edit the config file and replace with your credentials:
 
 ```sh
-  $ vim ~/.csub
+  $ vim ~/.csup
 ```
 
 ```yaml

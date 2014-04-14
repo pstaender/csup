@@ -9,8 +9,6 @@ absPath = (p) ->
 
 configFile = absPath('~/.csup')
 
-config = {}
-
 exports.defaultOptions =
   scope: "https://www.googleapis.com/auth/drive.file"
   authCode: 0
@@ -21,24 +19,29 @@ exports.defaultOptions =
   refreshToken: 0
   defaultFilename: 'file_{timestamp}' # possible in {date|DATE|timestamp|TIMESTAMP}
 
+config = null
+
+exports.configFile = configFile
+
 exports.defaultFilename = ->
   s = config.defaultFilename?.trim() or exports.defaultOptions.defaultFilename
   s.replace('{timestamp}', new Date().getTime()).replace('{TIMESTAMP}', Math.round((new Date().getTime())/1000)).replace('{date}', String(new Date())).replace('{DATE}', String(new Date()).replace(/\s+/g,'_'))
 
 exports.storeConfig = (cb) ->
   if typeof cb is 'function'
-    fs.writeFile(configFile, YAML.stringify(config,2), cb)
+    fs.writeFile(configFile, YAML.stringify(exports.config, 2), cb)
   else
-    fs.writeFileSync(configFile, YAML.stringify(config,2))
+    fs.writeFileSync(configFile, YAML.stringify(exports.config, 2))
 
 unless fs.existsSync(configFile)
+  exports.config = config = _.extend({}, exports.defaultOptions)
   console.error "Couldn't load config file '#{configFile}'."
   try
     exports.storeConfig()
   catch e
     console.error "Error on creating file:", err?.message
   console.error "Created config file with empty values; please set up first to process. For instance:"
-  console.error "vi #{configFile}"
+  console.error "nano #{configFile}"
   process.exit(1)
 
 try
@@ -46,9 +49,6 @@ try
 catch e
   console.error "Could't parse yaml config file '#{configFile}':", e?.message or e
   process.exit(1)
-
-
-
 
 exports.credentials = ->
   { access_token: config.accessToken, refresh_token: config.refreshToken, token_type: config.tokenType }

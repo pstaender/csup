@@ -9,6 +9,11 @@ rl = require("readline").createInterface(
 
 auth = new googleapis.OAuth2Client(config.clientID, config.clientSecret, config.redirectURL)
 
+if not config.clientID or not config.clientSecret
+  console.error "There are no valid clientID and clientSecret set in `#{csup.configFile}`, please complete values"
+  process.exit(1)
+
+
 googleapis.discover("drive", "v2").execute (err, client) ->
 
   url = auth.generateAuthUrl(scope: config.scope)

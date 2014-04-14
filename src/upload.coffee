@@ -21,8 +21,11 @@ googleapis.discover("drive", "v2").execute (err, client) ->
       Authorization: "Bearer " + config.accessToken
       "Content-Type": "#{config.type}; charset=UTF-8"
   , (err, res) ->
+    size = 0
     try
       body = JSON.parse(res.body)
+      fileSize = Math.round((Number(body.fileSize) / 8 / 1024 / 1024)*10)/10
+      # .id, .md5checksum, .fileSize
     catch e
       body = null
     if err
@@ -37,11 +40,11 @@ googleapis.discover("drive", "v2").execute (err, client) ->
         req = client.drive.files.update({ fileId: fileId }, { title: filename })
         req.withAuthClient(auth).execute (err, res) ->
           if err
-            console.log "* #{fileId}"
+            console.log "* #{fileId} (#{fileSize}mb)"
             console.error 'Could not rename uploaded file'
             process.exit(1)
           else
-            console.log "* #{fileId} -> #{res.title}"
+            console.log "* #{fileId} -> #{res.title} (#{fileSize}mb)"
             process.exit(0)
 
 
