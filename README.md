@@ -9,18 +9,35 @@ At the moment you can use only `stdin` as source (there is **no** feature with f
 ## Install
 
 ```sh
-  $ git clone git@github.com:pstaender/csup.git csup
-  $ cd csup && npm install .
-```
-
-If you want to use it on globally on commandline (recommend):
-
-```sh
-  $ chmod +x lib/csup
-  $ (sudo) ln -s $(pwd)/bin/csup /usr/local/bin/csup
+  $ npm install -g csup
 ```
 
 Take a quick look at **Configuration and Authentication** (below) before using it.
+
+## Configuration and Authentication
+
+Edit the config file and replace with your credentials:
+
+```sh
+  $ vim ~/.csup
+```
+
+```yaml
+clientID: ***.apps.googleusercontent.com
+clientSecret: ***
+redirectURL: http://localhost
+```
+
+Now we need to request the accesstoken from google (will be stored by csub in `~/.csub` by default after entering on prompt):
+
+```sh
+  $ csup auth
+  Visit the url:
+  https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file&response_type=code&client_id=***vs.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost
+  Enter the code here: 
+```
+
+Visit the given url and enter the code which is given in the browser url after granting access (e.g. http://localhost/?code=**4/6Lu5yZys3A4fFmVDcEF-hSKxrHs-.EsFadx5GgeweOl05ti2ZT3YjGrG6igI**).
 
 ## Usage
 
@@ -84,31 +101,6 @@ For the rest of us who is not familiar with encrypting and decryption After down
 ```sh
   $ openssl enc -d -aes-256-cbc -in out.tar.gz.enc -pass pass:mypass | out.tar.gz | tar xz
 ```
-
-## Configuration and Authentication
-
-Edit the config file and replace with your credentials:
-
-```sh
-  $ vim ~/.csup
-```
-
-```yaml
-clientID: ***.apps.googleusercontent.com
-clientSecret: ***
-redirectURL: http://localhost
-```
-
-Now we need to request the accesstoken from google (will be stored by csub in `~/.csub` by default after entering on prompt):
-
-```sh
-  $ csup auth
-  Visit the url:
-  https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file&response_type=code&client_id=***vs.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost
-  Enter the code here: 
-```
-
-Visit the given url and enter the code which is given in the browser url after granting access (e.g. http://localhost/?code=**4/6Lu5yZys3A4fFmVDcEF-hSKxrHs-.EsFadx5GgeweOl05ti2ZT3YjGrG6igI**).
 
 ## Further docs
 
