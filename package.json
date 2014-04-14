@@ -1,0 +1,13 @@
+{
+  "name": "csup",
+  "version": "0.0.1",
+  "author": "Philipp Staender <philipp.staender@gmail.com>",
+  "dependencies": {
+    "googleapis": "^0.7.0",
+    "refresh-token": "0.0.2",
+    "yamljs": "^0.1.4",
+    "request": "^2.34.0",
+    "underscore": "^1.6.0",
+    "optimist": "^0.6.1"
+  }
+}
