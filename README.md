@@ -11,7 +11,7 @@ Very basic. It's only working with Google Drive for now.
   $ cd csup && npm install .
   # if you want to use it from commandline everywhere (recommend)
   $ chmod +x lib/csup
-  $ ln -s $(pwd)/lib/csup /usr/local/bin/csup
+  $ (sudo) ln -s $(pwd)/lib/csup /usr/local/bin/csup
 ```
 
 ## Configuration and Authentication

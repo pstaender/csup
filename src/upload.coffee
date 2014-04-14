@@ -27,9 +27,11 @@ googleapis.discover("drive", "v2").execute (err, client) ->
       body = null
     if err
       console.error "Error during upload: ", err?.message or err or res?.body?.error
+      process.exit(1)
     else
       if body?.error
-        console.error body?.error
+        console.error 'Error from Google API: ', body?.error
+        process.exit(1)
       else
         fileId = body.id
         req = client.drive.files.update({ fileId: fileId }, { title: filename })
@@ -37,7 +39,9 @@ googleapis.discover("drive", "v2").execute (err, client) ->
           if err
             console.log "* #{fileId}"
             console.error 'Could not rename uploaded file'
+            process.exit(1)
           else
             console.log "* #{fileId} -> #{res.title}"
+            process.exit(0)
 
 
