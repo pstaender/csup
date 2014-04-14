@@ -1,5 +1,6 @@
 {
   "name": "csup",
+  "description": "Uploads (large) data by pipe to Google Drive",
   "version": "0.0.1",
   "author": "Philipp Staender <philipp.staender@gmail.com>",
   "dependencies": {
@@ -9,5 +10,13 @@
     "request": "^2.34.0",
     "underscore": "^1.6.0",
     "optimist": "^0.6.1"
-  }
+  },
+  "license": "MIT",
+  "main": "./lib/csup",
+  "bin": "./bin/csup",
+  "bugs": "https://github.com/pstaender/csup/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pstaender/csup.git"
+  },
 }

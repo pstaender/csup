@@ -24,7 +24,7 @@ googleapis.discover("drive", "v2").execute (err, client) ->
     size = 0
     try
       body = JSON.parse(res.body)
-      fileSize = Math.round((Number(body.fileSize) / 8 / 1024 / 1024)*10)/10
+      fileSize = Math.round((Number(body.fileSize) / 8 / 1024 / 1024)*100)/100
       # .id, .md5checksum, .fileSize
     catch e
       body = null
@@ -38,6 +38,21 @@ googleapis.discover("drive", "v2").execute (err, client) ->
       else
         fileId = body.id
         req = client.drive.files.update({ fileId: fileId }, { title: filename })
+        body.filename = filename # we add the filename here because it ain't renamed on cloud storage, yet
+        if config.verbosity is 1
+          console.log
+            id: body.id
+            filename: body.filename
+            mimeType: body.mimeType
+            downloadUrl: body.downloadUrl
+            createdDate: body.createdDate
+            modifiedDate: body.modifiedDate
+            md5Checksum: body.md5Checksum
+            fileSize: Number(body.fileSize)
+            originalFilename: body.originalFilename
+            ownerNames: body.ownerNames
+        else if config.verbosity > 1
+          console.log(body)
         req.withAuthClient(auth).execute (err, res) ->
           if err
             console.log "* #{fileId} (#{fileSize}mb)"
