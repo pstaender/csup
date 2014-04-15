@@ -4,19 +4,23 @@ Uploads (large) data trough the pipe to Google Drive.
 
 Very basic and it's only working with GDrive for now.
 
-You can use only `stdin` / pipe as source (there won't be the feature to send a file by parameter like `csup upload file_to_send.txt`). The tool … is doing great in that job. 
+You can use `stdin` / pipe as source only. There won't be any feature to send a file by parameter in near future.
+
+## Requirements
+
+  * unix environment
+  * nodejs (tested with v0.10.*)
+  * [Google API access](https://developers.google.com/drive/web/enable-sdk) (free)
 
 ## Install
 
 ```sh
-  $ npm install -g csup
+  $ (sudo) npm install -g csup
 ```
 
 Take a quick look at **Configuration and Authentication** (below) before using it.
 
 ## Configuration and Authentication
-
-Simply run
 
 ```sh
   $ csup setup
@@ -41,35 +45,36 @@ Simply run
     -h --help   displays help
     -n --name   filename for cloud storage    e.g. -n filename.txt
     -t --type   force a specific filetype     e.g. -t 'application/zip'
-    -v -vv      verbosity
+    -v -vv -vvv verbosity
 ```
 
 ## Examples
 
-Process (large) data and pipe them to cloud storage:
+Process (large) data and pipe them to cloud storage and returns the `downloadUrl` if succeeded:
 
 ```sh
   $ do_something | do_some_other_stuff | … | csup -n output.txt
+  https://doc-0s-9s-docs.googleusercontent.com/docs/securesc/dadasfd42pdda6fpf5nfads?h=1234&e=download&gd=true
 ```
 
 Uploading a log file and zip it:
 
 ```sh
   $ cat /var/log/service.log | grep error | gzip | csup -n "log.gz"
-  0B_aNw316e3FwdXEwXEdCMnlVaW8
+  https://doc-0s-9s-docs.googleusercontent.com/docs/securesc/dadasfd42pdda6fpf5nfads?h=1234&e=download&gd=true
 ```
 
 If you prefere more verbosity:
 
 ```sh
-  $ cat /var/log/service.log | grep error | gzip | csup -vn "log.gz"
-  * 0B_aNw316e3FwdXEwXEdCMnlVaW8 -> log.gz (1.2mb)
+  $ cat /var/log/service.log | grep error | gzip | csup -v -n "log.gz"
+  0B_aNw316e3FwdXEwXEdCMnlVaW8  log.gz  1.2mb
 ```
 
 If you prefer more verbosity:
 
 ```sh
-  $ cat /var/log/service.log | grep error | gzip | csup -vvn "log.gz"
+  $ cat /var/log/service.log | grep error | gzip | csup -vv -n "log.gz"
   { id: '0B_aNw316e3FwdXEwXEdCMnlVaW8',
   filename: 'log.gz',
   mimeType: 'application/x-gzip; charset=UTF-8',
@@ -80,21 +85,18 @@ If you prefer more verbosity:
   fileSize: 1234567,
   originalFilename: 'Untitled',
   ownerNames: [ 'OwnerName' ] }
-  * 0B_aNw316e3FwdXEwXEdCMnlVaW8 -> log.gz (1.2mb)
 ```
 
 Sending a large videofile could be
 
 ```sh
   $ cat video.mkv | csup
-  * 0B_eNw266a3FwRVZjaGNPVnVTbzQ-> file_1397434048983 (320.2mb)
 ```
 
-or by giving a filename (recommend):
+With giving a filename (recommend):
 
 ```sh
   $ cat james_bond.mkv | csup -n JamesBond.mkv
-  * 0B_eNw266a3FwRVZjaGNPVnVTbzQ -> JamesBond.mkv (320.2mb)
 ```
 
 Force a specific filetype:
@@ -103,27 +105,44 @@ Force a specific filetype:
   $ cat README.md | csup -n README.md -t text/troff
 ```
 
-Maybe the most valuable tool(s): tar and compress a folder, encrypt it and send it directly to your Google Drive: 
+## Download the file
+
+With url you can download the file:
+
+```sh
+  $ csup https://doc-0s-9s-docs.googleusercontent.com/docs/securesc/dadasfd42pdda6fpf5nfads?h=1234&e=download&gd=true > myfile.txt
+```
+
+Up- and download a file in one step:
+
+```sh
+  $ cat file.json | ./bin/csup -n file.json | xargs -0 -I url ./bin/csup url > downloaded_file.json
+```
+
+## Example#1: Upload tar/zipped and encrypted folders
+
+Tar and compress a folder, encrypt it and send it directly to your Google Drive: 
 
 ```sh
   $ tar cz folder_to_encrypt | openssl enc -aes-256-cbc -e -pass pass:mypass | csup -n backup_$(date +"%Y-%m-%d_%H:%M:%S_%Z").tar.gz.enc
 ```
 
-For the rest of us who is not familiar with encrypting and decryption After downloading the file from Google Drive, ecrypting and deflating would be:
+Encrypting and deflating would be:
 
 ```sh
   $ openssl enc -d -aes-256-cbc -in out.tar.gz.enc -pass pass:mypass | out.tar.gz | tar xz
 ```
+## Example #2: Incremental backups with tar
+
+I'll figure out an example the next weeks, so far take look at [http://www.gnu.org/software/tar/manual/html_node/Incremental-Dumps.html](http://www.gnu.org/software/tar/manual/html_node/Incremental-Dumps.html)
 
 ## Limitations
 
-According to Google Drive API docs (http://) you are able to upload up to **1TB large files** if you are having that much free space available.
-
-## Example #2 Incremental Backup with tar
-http://www.gnu.org/software/tar/manual/html_node/Incremental-Dumps.html
+According to [Google Drive support](https://support.google.com/drive/answer/37603?hl=en) you are able to upload up to **1TB large files** if you own that much space.
 
 ## Further docs
 
+  * https://developers.google.com/drive/web/quickstart/quickstart-js
   * https://code.google.com/apis/console/
   * https://developers.google.com/oauthplayground/
 

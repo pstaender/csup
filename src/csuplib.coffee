@@ -3,6 +3,9 @@ _           = require('underscore')
 fs          = require('fs')
 googleapis  = require("googleapis")
 argv        = require('optimist').argv
+
+GoogleTokenProvider = require("refresh-token").GoogleTokenProvider
+
 _rl = null
 
 absPath = (p) ->
@@ -17,8 +20,8 @@ mask = (s) ->
     Array(s.length+1).join('*')
 
 exports.log = (verbosity = 0, msg) ->
-  if config.verbosity >= verbosity
-    console.log msg
+  if exports.config.verbosity >= verbosity
+    console.log(msg) if msg isnt null or undefined
     true
   else
     false
@@ -44,7 +47,7 @@ exports.loadConfig = ->
   unless fs.existsSync(exports.configFile)
     null
   else
-    _.defaults(YAML.load(exports.configFile), exports.defaultOptions)
+    _.defaults(YAML.load(exports.configFile) or {}, exports.defaultOptions)
 
 exports.config = exports.loadConfig() or {}
 
@@ -142,5 +145,30 @@ exports.help = ->
       -h --help   displays help
       -n --name   filename for cloud storage    e.g. -n filename.txt
       -t --type   force a specific filetype     e.g. -t 'application/zip'
-      -v -vv      verbosity
+      -v -vv -vvv verbosity
   """
+
+exports.establishAPIConnection = (cb) ->
+  googleapis = require("googleapis")
+  config = exports.config
+
+  tokenProvider = new GoogleTokenProvider
+    'refresh_token': config.refreshToken
+    'client_id': config.clientID
+    'client_secret': config.clientSecret
+
+  tokenProvider.getToken (err, accessToken) ->
+    config.accessToken = accessToken
+
+    unless accessToken
+      console.error """
+        Couldn't get valid accesstoken. Please run again:
+        csup auth
+      """
+      process.exit(1)
+    # store asnyc
+    exports.storeConfig (err) ->
+      console.error("Couldn't store config", err?.message or err) if err
+
+    auth = new googleapis.OAuth2Client(config.clientID, config.clientSecret, config.redirectURL)
+    cb(err, googleapis, auth)

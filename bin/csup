@@ -3,11 +3,16 @@
 var argv = require('optimist').argv;
 var csup = require('../lib/csuplib');
 
+csup.config.urlToDownload = null;
+
 // check verbosity level
 process.argv.map(function(arg){
   var verbosity = arg.match(/^\-.*?(v+).*/);
   if ((verbosity)&&(verbosity[1])) {
-    csup.args.verbosity = verbosity[1].length;
+    csup.config.verbosity = verbosity[1].length;
+  } else if (/^\s*http[s]*\:\/\/.+\s*$/.test(arg)) {
+    // we have an URL as argument, assume we should download the file
+    csup.config.urlToDownload = arg.trim();
   }
 });
 
@@ -27,9 +32,13 @@ if (argv._.indexOf('auth') >= 0) {
 
 } else {
 
-  csup.config.filename = argv.n || argv.name || null;
-  csup.config.type = argv.t || argv.type || null;
+  if (csup.config.urlToDownload) {
+    require('../lib/download');
+  } else {
+    csup.config.filename = argv.n || argv.name || null;
+    csup.config.type = argv.t || argv.type || null;
 
-  require('../lib/upload');
+    require('../lib/upload');
+  }
 
 }

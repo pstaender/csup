@@ -1,32 +1,14 @@
 request             = require('request')
 csup                = require('./csuplib')
 contentTypes        = require('./contenttypes')
-GoogleTokenProvider = require("refresh-token").GoogleTokenProvider
 
 config = csup.checkConfig()
 log = csup.log
 
 return csup.setup() unless config
-# console.log(config)
-# process.exit(0)
-googleapis = require("googleapis")
 
-tokenProvider = new GoogleTokenProvider
-  'refresh_token': config.refreshToken
-  'client_id': config.clientID
-  'client_secret': config.clientSecret
+csup.establishAPIConnection (err, googleapis, auth) ->
 
-tokenProvider.getToken (err, accessToken) ->
-  config.accessToken = accessToken
-
-  unless accessToken
-    console.error "Couldn't get valid accesstoken. Please run again\ncsup auth"
-    process.exit(1)
-  # store asnyc
-  csup.storeConfig (err) ->
-    console.error("Couldn't store config", err?.message or err) if err
-
-  auth = new googleapis.OAuth2Client(config.clientID, config.clientSecret, config.redirectURL)
   googleapis.discover("drive", "v2").execute (err, client) ->
 
     url = auth.generateAuthUrl(scope: config.scope)
@@ -46,7 +28,6 @@ tokenProvider.getToken (err, accessToken) ->
       try
         body = JSON.parse(res.body)
         fileSize = Math.round((Number(body.fileSize) / 8 / 1024 / 1024) * 100) / 100
-        # .id, .md5checksum, .fileSize
       catch e
         body = null
       if err
@@ -58,10 +39,11 @@ tokenProvider.getToken (err, accessToken) ->
           process.exit(1)
         else
           fileId = body.id
+          downloadUrl = body.downloadUrl
           req = client.drive.files.update({ fileId: fileId }, { title: filename })
           body.filename = filename # we add the filename here because it ain't renamed on cloud storage, yet
 
-          log(1, {
+          log(2, {
             id: body.id
             filename: body.filename
             mimeType: body.mimeType
@@ -72,10 +54,10 @@ tokenProvider.getToken (err, accessToken) ->
             fileSize: Number(body.fileSize)
             originalFilename: body.originalFilename
             ownerNames: body.ownerNames
-          }) unless log(2, body)
+          }) unless log(3, body)
 
           req.withAuthClient(auth).execute (err, res) ->
-            log(0, fileID) unless log(1, "#{fileId}\t#{res.title}\t#{fileSize}mb")
+            console.log(downloadUrl) unless log(1, "#{fileId}\t#{res.title}\t#{downloadUrl}\t#{fileSize}mb") unless log(2,null)
             if err
               console.error 'Could not rename uploaded file'
               process.exit(1)
