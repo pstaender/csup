@@ -2,24 +2,28 @@
 
 var argv = require('optimist').argv;
 var csup = require('../lib/csuplib');
-csup.config.verbosity = 0;
 
 // check verbosity level
 process.argv.map(function(arg){
   var verbosity = arg.match(/^\-.*?(v+).*/);
   if ((verbosity)&&(verbosity[1])) {
-    csup.config.verbosity = verbosity[1].length;
+    csup.args.verbosity = verbosity[1].length;
   }
 });
 
+// the -c and --config argument is parsed in csuplib
 if (argv._.indexOf('auth') >= 0) {
 
   require('../lib/auth');
 
+} else if (argv._.indexOf('setup') >= 0) {
+
+  require('../lib/setup');
+
 } else if ((argv._.indexOf('help') >= 0)||(argv.h || argv.help)) {
 
-  console.log('csup v0.0.1 (cloud storage uploader), (c) 2014 by Philipp Staender')
-  console.log("Usage: csup auth (-n --name $filename -t --type $contentType)");
+  console.log(csup.help());
+  process.exit(0);
 
 } else {
 

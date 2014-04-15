@@ -1,10 +1,10 @@
 # Cloud Storage Uploader
 
-Uploads (large) data by pipe to Google Drive.
+Uploads (large) data trough the pipe to Google Drive.
 
-Very basic and it's only working with Google Drive.
+Very basic and it's only working with GDrive for now.
 
-At the moment you can use only `stdin` as source (there is **no** feature with file sending like `csup -f file_to_send.txt` implemented, yet).
+You can use only `stdin` / pipe as source (there won't be the feature to send a file by parameter like `csup upload file_to_send.txt`). The tool … is doing great in that job. 
 
 ## Install
 
@@ -16,30 +16,35 @@ Take a quick look at **Configuration and Authentication** (below) before using i
 
 ## Configuration and Authentication
 
-Edit the config file and replace with your credentials:
+Simply run
 
 ```sh
-  $ vim ~/.csup
+  $ csup setup
 ```
 
-```yaml
-clientID: ***.apps.googleusercontent.com
-clientSecret: ***
-redirectURL: http://localhost
-```
+## How to create a clientID and clientSecret
 
-Now we need to request the accesstoken from google (will be stored by csub in `~/.csub` by default after entering on prompt):
+## Commands
 
 ```sh
-  $ csup auth
-  Visit the url:
-  https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file&response_type=code&client_id=***vs.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost
-  Enter the code here: 
+  $ csup help
+
+  Usage: csup (switch) (-option|--option)
+
+  switches:
+    auth        receives `accessToken` from Google API (interactive)
+    setup       setups `clientID` + `clientSecret` (interactive)
+    filename    returns a filename; usage: csup filename $id
+    download    downloads a file;   usage: csup download $id > filename.txt
+
+  options:
+    -h --help   displays help
+    -n --name   filename for cloud storage    e.g. -n filename.txt
+    -t --type   force a specific filetype     e.g. -t 'application/zip'
+    -v -vv      verbosity
 ```
 
-Visit the given url and enter the code which is given in the browser url after granting access (e.g. http://localhost/?code=**4/6Lu5yZys3A4fFmVDcEF-hSKxrHs-.EsFadx5GgeweOl05ti2ZT3YjGrG6igI**).
-
-## Usage
+## Examples
 
 Process (large) data and pipe them to cloud storage:
 
@@ -47,16 +52,24 @@ Process (large) data and pipe them to cloud storage:
   $ do_something | do_some_other_stuff | … | csup -n output.txt
 ```
 
-Some real life examples:
+Uploading a log file and zip it:
 
 ```sh
   $ cat /var/log/service.log | grep error | gzip | csup -n "log.gz"
-  * 0B_aNw316e3FwdXEwXEdCMnlVaW8 -> log.gz (1.2mb)
+  0B_aNw316e3FwdXEwXEdCMnlVaW8
 ```
-If you prefer more verbosity:
+
+If you prefere more verbosity:
 
 ```sh
   $ cat /var/log/service.log | grep error | gzip | csup -vn "log.gz"
+  * 0B_aNw316e3FwdXEwXEdCMnlVaW8 -> log.gz (1.2mb)
+```
+
+If you prefer more verbosity:
+
+```sh
+  $ cat /var/log/service.log | grep error | gzip | csup -vvn "log.gz"
   { id: '0B_aNw316e3FwdXEwXEdCMnlVaW8',
   filename: 'log.gz',
   mimeType: 'application/x-gzip; charset=UTF-8',
@@ -101,6 +114,13 @@ For the rest of us who is not familiar with encrypting and decryption After down
 ```sh
   $ openssl enc -d -aes-256-cbc -in out.tar.gz.enc -pass pass:mypass | out.tar.gz | tar xz
 ```
+
+## Limitations
+
+According to Google Drive API docs (http://) you are able to upload up to **1TB large files** if you are having that much free space available.
+
+## Example #2 Incremental Backup with tar
+http://www.gnu.org/software/tar/manual/html_node/Incremental-Dumps.html
 
 ## Further docs
 

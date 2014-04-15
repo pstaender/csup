@@ -1,18 +1,14 @@
-csup = require('./csuplib')
-config = csup.config
+csup        = require('./csuplib')
+googleapis  = require("googleapis")
 
-googleapis = require("googleapis")
-rl = require("readline").createInterface(
-  input: process.stdin
-  output: process.stdout
-)
-
+config = csup.checkConfig()
 auth = new googleapis.OAuth2Client(config.clientID, config.clientSecret, config.redirectURL)
 
 if not config.clientID or not config.clientSecret
   console.error "There are no valid clientID and clientSecret set in `#{csup.configFile}`, please complete values"
   process.exit(1)
 
+console.log '** AUTH PROCESS **'
 
 googleapis.discover("drive", "v2").execute (err, client) ->
 
@@ -30,6 +26,5 @@ googleapis.discover("drive", "v2").execute (err, client) ->
       console.log "Succesfully persisted access token"
       process.exit(0)
 
-  console.log "Visit the url:"
-  console.log url
-  rl.question "Enter the code here: ", getAccessToken
+  console.log "\n#{url}"
+  csup.rl().question "\nVisit the url and enter the code here: ", getAccessToken
