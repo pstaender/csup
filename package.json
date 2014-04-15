@@ -1,7 +1,7 @@
 {
   "name": "csup",
   "description": "Uploads (large) data via pipe to Google Drive",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Philipp Staender <philipp.staender@gmail.com>",
   "dependencies": {
     "googleapis": "^0.7.0",

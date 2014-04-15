@@ -138,8 +138,6 @@ exports.help = ->
     switches:
       auth        receives `accessToken` from Google API (interactive)
       setup       setups `clientID` + `clientSecret` (interactive)
-      filename    returns a filename; usage: csup filename \$id
-      download    downloads a file;   usage: csup download \$id > filename.txt
 
     options:
       -h --help   displays help
